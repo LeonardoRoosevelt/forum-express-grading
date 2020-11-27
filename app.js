@@ -8,7 +8,7 @@ const flash = require('connect-flash')
 const session = require('express-session')
 const passport = require('./config/passport')
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: 'hbs' })) // Handlebars 註冊樣板引擎
 app.set('view engine', 'hbs') // 設定使用 Handlebars 做為樣板引擎
