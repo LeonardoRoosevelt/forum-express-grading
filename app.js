@@ -5,6 +5,10 @@ const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const flash = require('connect-flash')
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 const session = require('express-session')
 const passport = require('./config/passport')
 const app = express()
@@ -29,6 +33,7 @@ app.use((req, res, next) => {
 })
 
 app.listen(port, () => {
+  db.sequelize.sync() //model與資料庫同步
   console.log(`Example app listening on port ${port}!`)
 })
 
