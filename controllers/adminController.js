@@ -1,8 +1,10 @@
+const helpers = require('../_helpers')
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const fs = require('fs')
 const db = require('../models')
 const Restaurant = db.Restaurant
+const User = db.User
 
 const adminController = {
   getRestaurants: (req, res) => {
@@ -50,20 +52,16 @@ const adminController = {
     }
   },
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true }).then(
-      restaurant => {
-        return res.render('admin/restaurant', {
-          restaurant: restaurant
-        })
-      }
-    )
+    return Restaurant.findByPk(req.params.id, { raw: true }).then(restaurant => {
+      return res.render('admin/restaurant', {
+        restaurant: restaurant
+      })
+    })
   },
   editRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true }).then(
-      restaurant => {
-        return res.render('admin/create', { restaurant: restaurant })
-      }
-    )
+    return Restaurant.findByPk(req.params.id, { raw: true }).then(restaurant => {
+      return res.render('admin/create', { restaurant: restaurant })
+    })
   },
   putRestaurant: (req, res) => {
     if (!req.body.name) {
@@ -86,10 +84,7 @@ const adminController = {
               image: file ? img.data.link : restaurant.image
             })
             .then(restaurant => {
-              req.flash(
-                'success_messages',
-                'restaurant was successfully to update'
-              )
+              req.flash('success_messages', 'restaurant was successfully to update')
               res.redirect('/admin/restaurants')
             })
         })
@@ -106,10 +101,7 @@ const adminController = {
             image: restaurant.image
           })
           .then(restaurant => {
-            req.flash(
-              'success_messages',
-              'restaurant was successfully to update'
-            )
+            req.flash('success_messages', 'restaurant was successfully to update')
             res.redirect('/admin/restaurants')
           })
       })
@@ -121,6 +113,38 @@ const adminController = {
         res.redirect('/admin/restaurants')
       })
     })
+  },
+  getUsers: (req, res) => {
+    let userId = helpers.getUser(req).id //前端控制
+    return User.findAll({ raw: true }).then(users => {
+      users.map(user => {
+        if (user.id === userId) {
+          user.self = true
+        } else {
+          user.self = false
+        }
+      })
+      return res.render('admin/users', { users: users })
+    })
+  },
+  putUsers: (req, res) => {
+    const id = req.params.id
+    // const userId = helpers.getUser(req).id 後端控制
+    // if (id !== userId) {
+    return User.findByPk(id).then(user => {
+      user.update({ isAdmin: !user.isAdmin }).then(user => {
+        if (user.isAdmin === true) {
+          req.flash('success_messages', `${user.name} was successfully to update to Admin`)
+        } else {
+          req.flash('success_messages', `${user.name} was successfully to update to User`)
+        }
+        return res.redirect('/admin/users')
+      })
+    })
+    // } else {
+    //   req.flash('error_messages', `Do not change youself`)
+    //   return res.redirect('/admin/users')
+    // }
   }
 }
 
