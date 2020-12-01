@@ -44,8 +44,15 @@ const categoryController = {
           req.flash('success_messages', 'category was successfully update')
           return res.redirect('/admin/categories')
         })
-        .catch(err =>{next(err)})
+        .catch(err => {
+          next(err)
+        })
     }
+  },
+  deleteCategory: (req, res) => {
+    return Category.findByPk(req.params.id)
+      .then(category => category.destroy())
+      .then(category => res.redirect('/admin/categories'))
   }
 }
 
