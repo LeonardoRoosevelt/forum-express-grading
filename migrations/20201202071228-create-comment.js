@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Comments', {
@@ -12,10 +12,18 @@ module.exports = {
         type: Sequelize.STRING
       },
       UserId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        reference: {
+          model: 'Users',
+          key: 'id'
+        }
       },
       RestaurantId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        reference: {
+          model: 'Restaurants',
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,
@@ -25,9 +33,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Comments');
+    await queryInterface.dropTable('Comments')
   }
-};
+}
