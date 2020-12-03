@@ -1,0 +1,14 @@
+<div class=" row border mt-5">
+  <div class="col-md-4">
+    <img class="card-img rounded-circle img-fluid" alt="avatar" src="{{profile.image}}">
+  </div>
+  <div class="col-md-8">
+    <div class="card-body">
+      <h4 class="card-title">{{profile.name}}</h4>
+      <p class="card-text">{{profile.email}}</p>
+      {{#ifUser profile.id user.id}}
+      <a href="/users/{{profile.id}}/edit" class="btn btn-primary">edit</a>
+      {{/ifUser}}
+    </div>
+  </div>
+</div>

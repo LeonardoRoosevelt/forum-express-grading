@@ -26,6 +26,14 @@ module.exports = (app, passport) => {
     }
     res.redirect('/signin')
   }
+  const authenticatedUser = (req, res, next) => {
+    if (helpers.ensureAuthenticated(req)) {
+      if (helpers.getUser(req).id.toString() === req.params.id) {
+        return next()
+      }
+    }
+    res.redirect('/')
+  }
 
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
 
@@ -62,4 +70,8 @@ module.exports = (app, passport) => {
 
   app.post('/comments', authenticated, commentController.postComment)
   app.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
+
+  app.get('/users/:id', authenticated, userController.getUser)
+  app.get('/users/:id/edit', authenticatedUser, userController.editUser)
+  app.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
 }
