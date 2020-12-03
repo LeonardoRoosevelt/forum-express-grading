@@ -5,6 +5,8 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
+const Comment = db.Comment
+const Restaurant = db.Restaurant
 
 const userController = {
   signUpPage: (req, res) => {
@@ -50,11 +52,27 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res) => {
-    User.findByPk(req.params.id)
-      .then(user => {
-        return res.render('profile', { user: helpers.getUser(req), profile: user.toJSON() })
+    const userId = req.params.id
+    User.findByPk(userId).then(user => {
+      Comment.findAndCountAll({ include: Restaurant, where: { userId } }).then(result => {
+        const totalComment = Math.ceil(result.count) || 0
+        const arr = result.rows.map(r => ({
+          ...r.dataValues,
+          restaurantImg: r.dataValues.Restaurant.image
+        }))
+        const set = new Set()
+        const data = arr.filter(item => (!set.has(item.RestaurantId) ? set.add(item.RestaurantId) : false))
+        const differentRest = data.length
+
+        return res.render('profile', {
+          user: helpers.getUser(req),
+          profile: user.toJSON(),
+          totalComment: totalComment,
+          differentRest: differentRest,
+          comments: data
+        })
       })
-      .catch(err => next(err))
+    })
   },
   editUser: (req, res) => {
     User.findByPk(req.params.id).then(user => {
