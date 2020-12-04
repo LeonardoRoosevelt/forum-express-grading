@@ -1,3 +1,5 @@
+const helpers = require('../_helpers')
+
 const db = require('../models')
 const Restaurant = db.Restaurant
 const Category = db.Category
@@ -35,7 +37,14 @@ const restController = {
         ...r.dataValues,
         description: r.dataValues.description.substring(0, 50),
         categoryName: r.dataValues.Category.name,
-        isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id)
+        isFavorited: helpers
+          .getUser(req)
+          .FavoritedRestaurants.map(d => d.id)
+          .includes(r.id),
+        isLiked: helpers
+          .getUser(req)
+          .LikedRestaurants.map(l => l.id)
+          .includes(r.id)
       }))
       Category.findAll({
         raw: true,
@@ -55,14 +64,21 @@ const restController = {
   },
   getRestaurant: (req, res) => {
     return Restaurant.findByPk(req.params.id, {
-      include: [Category, { model: User, as: 'FavoritedUsers' }, { model: Comment, include: [User] }]
+      include: [
+        Category,
+        { model: User, as: 'FavoritedUsers' },
+        { model: User, as: 'LikedUsers' },
+        { model: Comment, include: [User] }
+      ]
     }).then(restaurant => {
       restaurant.viewCounts += 1
       restaurant.save().then(restaurant => {
-        const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+        const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(helpers.getUser(req).id)
+        const isLiked = restaurant.LikedUsers.map(l => l.id).includes(helpers.getUser(req).id)
         return res.render('restaurant', {
           restaurant: restaurant.toJSON(),
-          isFavorited: isFavorited
+          isFavorited: isFavorited,
+          isLiked: isLiked
         })
       })
     })

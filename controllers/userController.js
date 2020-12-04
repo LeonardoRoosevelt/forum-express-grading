@@ -8,6 +8,7 @@ const User = db.User
 const Comment = db.Comment
 const Restaurant = db.Restaurant
 const Favorite = db.Favorite
+const Like = db.Like
 
 const userController = {
   signUpPage: (req, res) => {
@@ -121,7 +122,7 @@ const userController = {
   },
   addFavorite: (req, res) => {
     return Favorite.create({
-      UserId: req.user.id,
+      UserId: helpers.getUser(req).id,
       RestaurantId: req.params.restaurantId
     }).then(restaurant => {
       return res.redirect('back')
@@ -130,11 +131,31 @@ const userController = {
   removeFavorite: (req, res) => {
     return Favorite.findOne({
       where: {
-        UserId: req.user.id,
+        UserId: helpers.getUser(req).id,
         RestaurantId: req.params.restaurantId
       }
     }).then(favorite => {
       favorite.destroy().then(restaurant => {
+        return res.redirect('back')
+      })
+    })
+  },
+  addLike: (req, res) => {
+    return Like.create({
+      UserId: helpers.getUser(req).id,
+      RestaurantId: req.params.restaurantId
+    }).then(restaurant => {
+      return res.redirect('back')
+    })
+  },
+  removeLike: (req, res) => {
+    return Like.findOne({
+      where: {
+        UserId: helpers.getUser(req).id,
+        RestaurantId: req.params.restaurantId
+      }
+    }).then(like => {
+      like.destroy().then(restaurant => {
         return res.redirect('back')
       })
     })
