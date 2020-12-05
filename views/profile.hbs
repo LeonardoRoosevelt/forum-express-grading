@@ -6,26 +6,77 @@
     <div class="card-body">
       <h4 class="card-title">{{profile.name}}</h4>
       <p class="card-text">{{profile.email}}</p>
-      <p class="card-text"><span><b>{{totalComment}}</b></span> 已發布的評論</p>
+      <p class="card-text"><strong>{{totalComment}}</strong> 已評論餐廳</p>
+      <p class="card-text"><strong>{{FavoriteCount}}</strong> 收藏的餐廳</p>
+      <p class="card-text"><strong>{{FollowingCount}}</strong> followings(追蹤者)</p>
+      <p class="card-text"><strong>{{FollowerCount}}</strong> followers(追隨者)</p>
       {{#ifUser profile.id user.id}}
       <a href="/users/{{profile.id}}/edit" class="btn btn-primary">edit</a>
       {{/ifUser}}
     </div>
   </div>
 </div>
-<div class="card">
-  <div class="card-header">
-    <span><b>{{differentRest}}</b></span> 已評論的餐廳
-  </div>
-  <div class="card-img m-3">
-    <div class="row d-flex flex-wrap justify-content-start">
-      {{#each comments}}
-      <div class="col-md-1">
-        <a href="/restaurants/{{this.RestaurantId}}">
-          <img class="card-img-top " src="{{this.restaurantImg}}" alt="Card image cap" width="50px" height="50px">
-        </a>
+<div class="row d-flex flex-wrap justify-content-between">
+  <div class="col-md-4 p-0 m-2">
+    <div class="card">
+      <div class="card-header">
+        <span><b>{{FollowingCount}}</b></span> followings(追蹤者)
       </div>
-      {{/each}}
+      <div class="card-body">
+        {{#each followingsUser}}
+        <a href="/users/{{this.dataValues.id}}">
+          <img class="img-thumbnail m-2" src="{{#if this.dataValues.image}}{{this.dataValues.image}}{{else}}https://loremflickr.com/cache/resized/defaultImage.small_320_240_nofilter.jpg{{/if}}"
+            alt="Card image cap" style="width: 75px; height: 75px;">
+        </a>
+        {{/each}}
+      </div>
     </div>
   </div>
+  <div class="col-md-7 p-0 m-2">
+    <div class="card">
+      <div class="card-header">
+        <span><b>{{differentRest}}</b></span> 已評論餐廳
+      </div>
+      <div class="card-body">
+        {{#each comments}}
+        <a href="/restaurants/{{this.RestaurantId}}">
+          <img class="img-thumbnail m-2" src="{{#if this.restaurantImg}}{{this.restaurantImg}}{{else}}https://cdn.icon-icons.com/icons2/1774/PNG/512/019plate1_114171.png{{/if}}"
+            alt="Card image cap" style="width: 75px; height: 75px;">
+        </a>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 p-0 m-2">
+    <div class="card">
+      <div class="card-header">
+        <span><b>{{FollowerCount}}</b></span> followers(追隨者)
+      </div>
+      <div class="card-body">
+        {{#each followerUser}}
+        <a href="/users/{{this.dataValues.id}}">
+          <img class="img-thumbnail m-2" src="{{#if this.dataValues.image}}{{this.dataValues.image}}{{else}}https://loremflickr.com/cache/resized/defaultImage.small_320_240_nofilter.jpg{{/if}}"
+            alt="Card image cap" style="width: 75px; height: 75px;">
+        </a>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7 p-0 m-2">
+    <div class="card">
+      <div class="card-header">
+        <span><b>{{FavoriteCount}}</b></span> 收藏的餐廳
+      </div>
+      <div class="card-body">
+        {{#each favoriteRest}}
+        <a href="/restaurants/{{this.dataValues.id}}">
+          <img class="img-thumbnail m-2" src="{{#if this.dataValues.image}}{{this.dataValues.image}}{{else}}https://loremflickr.com/cache/resized/defaultImage.small_320_240_nofilter.jpg{{/if}}"
+            alt="Card image cap" style="width: 75px; height: 75px;">
+        </a>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+
 </div>

@@ -32,7 +32,8 @@
   {{#each restaurants}}
   <div class="row col-8 shadow p-3 mb-5 bg-white rounded" width="128px">
     <div class=" col-md-5 p-0">
-      <img class="content-img mb-3" src="{{this.image}}" alt="Card image cap" width="100%">
+      <img class="content-img mb-3" src="{{#if this.image}}{{this.image}}{{else}}https://loremflickr.com/cache/resized/defaultImage.small_320_240_nofilter.jpg{{/if}}"
+        alt="Card image cap" width="100%">
     </div>
     <div class="content-body col-md-6 ">
       <p class="content-text">

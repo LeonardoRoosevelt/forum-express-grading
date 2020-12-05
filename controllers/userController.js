@@ -55,27 +55,47 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res) => {
-    const userId = req.params.id
-    User.findByPk(userId).then(user => {
-      Comment.findAndCountAll({ include: Restaurant, where: { userId } }).then(result => {
-        const totalComment = Math.ceil(result.count) || 0
-        const arr = result.rows.map(r => ({
-          ...r.dataValues,
-          restaurantImg: r.dataValues.Restaurant.image
-        }))
-        const set = new Set()
-        const data = arr.filter(item => (!set.has(item.RestaurantId) ? set.add(item.RestaurantId) : false))
-        const differentRest = data.length
+    User.findByPk(req.params.id, {
+      include: [
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: Restaurant, as: 'LikedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' },
+        { model: Comment, include: [Restaurant] }
+      ]
+    })
+      .then((user)=>{
+        const arr = user.Comments.map(comment => ({
+          ...comment.dataValues,
+          restaurantImg: comment.dataValues.Restaurant.image
+          }))
+        let set=new Set()
+        const data=arr.filter(item => (!set.has(item.RestaurantId) ? set.add(item.RestaurantId) : false))
+        const differentRest=data.length
+        const totalComment = user.Comments.length || 0
+        const FavoriteCount = user.FavoritedRestaurants.length || 0
+        const LikeCount =user.LikedRestaurants.length || 0
+        const FollowerCount = user.Followers.length || 0
+        const FollowingCount = user.Followings.length || 0
+        const favoriteRest= user.FavoritedRestaurants
+        const followerUser= user.Followers
+        const followingsUser = user.Followings
 
         return res.render('profile', {
           user: helpers.getUser(req),
           profile: user.toJSON(),
           totalComment: totalComment,
           differentRest: differentRest,
-          comments: data
+          comments: data,
+          favoriteRest,
+          followerUser,
+          followingsUser,
+          FavoriteCount,
+          LikeCount,
+          FollowerCount,
+          FollowingCount
         })
       })
-    })
   },
   editUser: (req, res) => {
     User.findByPk(req.params.id).then(user => {
