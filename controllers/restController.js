@@ -112,6 +112,53 @@ const restController = {
     }).then(restaurant => {
       return res.render('dashboard', { restaurant: restaurant.toJSON() })
     })
+  },
+  getTopRestaurants: (req, res) => {
+    // 顯示種類
+    const whereQuery = {}
+    let categoryId = ''
+    if (req.query.categoryId) {
+      categoryId = Number(req.query.categoryId)
+      whereQuery.categoryId = categoryId
+    }
+    return Restaurant.findAll({
+      limit: 10,
+      where: whereQuery,
+      include: [
+        Category,
+        { model: User, as: 'FavoritedUsers' },
+        { model: User, as: 'LikedUsers' },
+        { model: Comment, include: [User] }
+      ]
+    }).then(restaurants => {
+      restaurants = restaurants.map(restaurant => ({
+        ...restaurant.dataValues,
+        description: restaurant.dataValues.description.substring(0, 50),
+        FavoriteCount: restaurant.FavoritedUsers.length,
+        LikeCount: restaurant.LikedUsers.length,
+        isFavorited: restaurant.FavoritedUsers.map(d => d.id).includes(helpers.getUser(req).id),
+        isLiked: restaurant.LikedUsers.map(l => l.id).includes(helpers.getUser(req).id)
+      }))
+      // 依追蹤者人數排序如追蹤人數相同再照喜愛人數排序
+      restaurants = restaurants.sort((a, b) => {
+        let favoriteCount1 = a.FavoriteCount
+        let favoriteCount2 = b.FavoriteCount
+        if (favoriteCount1 === favoriteCount2) {
+          return b.LikeCount - a.LikeCount
+        }
+        return b.FavoriteCount - a.FavoriteCount
+      })
+      Category.findAll({
+        raw: true,
+        nest: true
+      }).then(categories => {
+        return res.render('topRestaurants', {
+          restaurants: restaurants,
+          categories: categories,
+          categoryId: categoryId
+        })
+      })
+    })
   }
 }
 
