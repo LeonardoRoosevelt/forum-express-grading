@@ -18,6 +18,7 @@ const port = process.env.PORT || 3000
 app.engine('hbs', exphbs({ defaultLayout: 'main', helpers: require('./config/handlebars-helpers'), extname: 'hbs' })) // Handlebars 註冊樣板引擎
 app.set('view engine', 'hbs') // 設定使用 Handlebars 做為樣板引擎
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(methodOverride('_method'))
 app.use(express.static('public'))
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }))

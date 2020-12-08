@@ -9,19 +9,20 @@ const adminController = {
       return res.json(data)
     })
   },
-  getRestaurant: (req, res, next) => {
-    adminService
-      .getRestaurant(req, res, data => {
-        return res.json(data)
-      })
-      .catch(err => next(err))
+  getRestaurant: (req, res) => {
+    adminService.getRestaurant(req, res, data => {
+      return res.json(data)
+    })
   },
-  deleteRestaurant: (req, res, next) => {
-    adminService
-      .deleteRestaurant(req, res, data => {
-        return res.json(data)
-      })
-      .catch(err => next(err))
+  postRestaurant: (req, res) => {
+    adminService.postRestaurant(req, res, data => {
+      return res.json(data)
+    })
+  },
+  deleteRestaurant: (req, res) => {
+    adminService.deleteRestaurant(req, res, data => {
+      return res.json(data)
+    })
   }
 }
 module.exports = adminController
