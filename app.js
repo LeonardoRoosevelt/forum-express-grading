@@ -40,5 +40,19 @@ app.listen(port, () => {
 })
 
 require('./routes')(app, passport)
+//error handling
+app.use((req, res, next) => {
+  const err = new Error('頁面不存在')
+  err.status = 404
+  next(err)
+})
+app.use((err, req, res, next) => {
+  if (err.status !== 404) {
+    err.status = 500
+  }
+  console.log('here')
+  res.status(err.status || 500)
+  res.render('err', { err })
+})
 
 module.exports = app

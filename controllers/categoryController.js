@@ -2,21 +2,25 @@ const db = require('../models')
 const Category = db.Category
 
 const categoryController = {
-  getCategories: (req, res) => {
-    return Category.findAll({ raw: true }).then(categories => {
-      if (req.params.id) {
-        Category.findByPk(req.params.id).then(category => {
-          return res.render('admin/categories', {
-            categories: categories,
-            category: category.toJSON()
-          })
-        })
-      } else {
-        return res.render('admin/categories', { categories })
-      }
-    })
+  getCategories: (req, res, next) => {
+    return Category.findAll({ raw: true })
+      .then(categories => {
+        if (req.params.id) {
+          Category.findByPk(req.params.id)
+            .then(category => {
+              return res.render('admin/categories', {
+                categories: categories,
+                category: category.toJSON()
+              })
+            })
+            .catch(err => next(err))
+        } else {
+          return res.render('admin/categories', { categories })
+        }
+      })
+      .catch(err => next(err))
   },
-  postCategory: (req, res) => {
+  postCategory: (req, res, next) => {
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -31,7 +35,7 @@ const categoryController = {
         })
     }
   },
-  putCategory: (req, res) => {
+  putCategory: (req, res, next) => {
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -49,10 +53,11 @@ const categoryController = {
         })
     }
   },
-  deleteCategory: (req, res) => {
+  deleteCategory: (req, res, next) => {
     return Category.findByPk(req.params.id)
       .then(category => category.destroy())
       .then(category => res.redirect('/admin/categories'))
+      .catch(err => next(err))
   }
 }
 

@@ -54,7 +54,7 @@ const userController = {
     req.logout()
     res.redirect('/signin')
   },
-  getUser: (req, res) => {
+  getUser: (req, res, next) => {
     User.findByPk(req.params.id, {
       include: [
         { model: Restaurant, as: 'FavoritedRestaurants' },
@@ -64,21 +64,21 @@ const userController = {
         { model: Comment, include: [Restaurant] }
       ]
     })
-      .then((user)=>{
+      .then(user => {
         const arr = user.Comments.map(comment => ({
           ...comment.dataValues,
           restaurantImg: comment.dataValues.Restaurant.image
-          }))
-        let set=new Set()
-        const data=arr.filter(item => (!set.has(item.RestaurantId) ? set.add(item.RestaurantId) : false))
-        const differentRest=data.length
+        }))
+        let set = new Set()
+        const data = arr.filter(item => (!set.has(item.RestaurantId) ? set.add(item.RestaurantId) : false))
+        const differentRest = data.length
         const totalComment = user.Comments.length || 0
         const FavoriteCount = user.FavoritedRestaurants.length || 0
-        const LikeCount =user.LikedRestaurants.length || 0
+        const LikeCount = user.LikedRestaurants.length || 0
         const FollowerCount = user.Followers.length || 0
         const FollowingCount = user.Followings.length || 0
-        const favoriteRest= user.FavoritedRestaurants
-        const followerUser= user.Followers
+        const favoriteRest = user.FavoritedRestaurants
+        const followerUser = user.Followers
         const followingsUser = user.Followings
 
         return res.render('profile', {
@@ -96,13 +96,16 @@ const userController = {
           FollowingCount
         })
       })
+      .catch(err => next(err))
   },
-  editUser: (req, res) => {
-    User.findByPk(req.params.id).then(user => {
-      return res.render('editProfile', { user: helpers.getUser(req), profile: user.toJSON() })
-    })
+  editUser: (req, res, next) => {
+    User.findByPk(req.params.id)
+      .then(user => {
+        return res.render('editProfile', { user: helpers.getUser(req), profile: user.toJSON() })
+      })
+      .catch(err => next(err))
   },
-  putUser: (req, res) => {
+  putUser: (req, res, next) => {
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -141,82 +144,98 @@ const userController = {
         .catch(err => next(err))
     }
   },
-  addFavorite: (req, res) => {
+  addFavorite: (req, res, next) => {
     return Favorite.create({
       UserId: helpers.getUser(req).id,
       RestaurantId: req.params.restaurantId
-    }).then(restaurant => {
-      return res.redirect('back')
     })
+      .then(restaurant => {
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
   },
-  removeFavorite: (req, res) => {
+  removeFavorite: (req, res, next) => {
     return Favorite.findOne({
       where: {
         UserId: helpers.getUser(req).id,
         RestaurantId: req.params.restaurantId
       }
-    }).then(favorite => {
-      favorite.destroy().then(restaurant => {
-        return res.redirect('back')
-      })
     })
+      .then(favorite => {
+        favorite.destroy().then(restaurant => {
+          return res.redirect('back')
+        })
+      })
+      .catch(err => next(err))
   },
-  addLike: (req, res) => {
+  addLike: (req, res, next) => {
     return Like.create({
       UserId: helpers.getUser(req).id,
       RestaurantId: req.params.restaurantId
-    }).then(restaurant => {
-      return res.redirect('back')
     })
+      .then(restaurant => {
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
   },
-  removeLike: (req, res) => {
+  removeLike: (req, res, next) => {
     return Like.findOne({
       where: {
         UserId: helpers.getUser(req).id,
         RestaurantId: req.params.restaurantId
       }
-    }).then(like => {
-      like.destroy().then(restaurant => {
-        return res.redirect('back')
-      })
     })
+      .then(like => {
+        like.destroy().then(restaurant => {
+          return res.redirect('back')
+        })
+      })
+      .catch(err => next(err))
   },
-  getTopUser: (req, res) => {
-
+  getTopUser: (req, res, next) => {
     return User.findAll({
       include: [{ model: User, as: 'Followers' }]
-    }).then(users => {
-      // 整理 users 資料
-      users = users.map(user => ({
-        ...user.dataValues,
-        FollowerCount: user.Followers.length,
-        isFollowed: helpers.getUser(req).Followings.map(d => d.id).includes(user.id)
-      }))
-      // 依追蹤者人數排序清單
-      users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
-      return res.render('topUser', { users: users })
     })
+      .then(users => {
+        // 整理 users 資料
+        users = users.map(user => ({
+          ...user.dataValues,
+          FollowerCount: user.Followers.length,
+          isFollowed: helpers
+            .getUser(req)
+            .Followings.map(d => d.id)
+            .includes(user.id)
+        }))
+        // 依追蹤者人數排序清單
+        users = users.sort((a, b) => b.FollowerCount - a.FollowerCount)
+        return res.render('topUser', { users: users })
+      })
+      .catch(err => next(err))
   },
-  addFollowing: (req, res) => {
+  addFollowing: (req, res, next) => {
     return Followship.create({
       followerId: helpers.getUser(req).id,
       followingId: req.params.userId
-    }).then(followship => {
-      return res.redirect('back')
     })
+      .then(followship => {
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
   },
 
-  removeFollowing: (req, res) => {
+  removeFollowing: (req, res, next) => {
     return Followship.findOne({
       where: {
         followerId: helpers.getUser(req).id,
         followingId: req.params.userId
       }
-    }).then(followship => {
-      followship.destroy().then(followship => {
-        return res.redirect('back')
-      })
     })
+      .then(followship => {
+        followship.destroy().then(followship => {
+          return res.redirect('back')
+        })
+      })
+      .catch(err => next(err))
   }
 }
 
