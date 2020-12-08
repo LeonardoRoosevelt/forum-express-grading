@@ -19,6 +19,15 @@ const adminService = {
         callback({ restaurant: restaurant.toJSON() })
       })
       .catch(err => next(err))
+  },
+  deleteRestaurant: (req, res, callback, next) => {
+    return Restaurant.findByPk(req.params.id)
+      .then(restaurant => {
+        restaurant.destroy().then(restaurant => {
+          callback({ status: 'success', message: '' })
+        })
+      })
+      .catch(err => next(err))
   }
 }
 
