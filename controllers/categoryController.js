@@ -23,22 +23,16 @@ const categoryController = {
       .catch(err => next(err))
   },
   putCategory: (req, res, next) => {
-    if (!req.body.name) {
-      req.flash('error_messages', "name didn't exist")
-      return res.redirect('back')
-    } else {
-      Category.findByPk(req.params.id)
-        .then(category => {
-          return category.update({ name: req.body.name })
-        })
-        .then(category => {
-          req.flash('success_messages', 'category was successfully update')
-          return res.redirect('/admin/categories')
-        })
-        .catch(err => {
-          next(err)
-        })
-    }
+    categoryService
+      .putCategory(req, res, data => {
+        if (data['status'] === 'error') {
+          req.flash('error_messages', data['message'])
+          return res.redirect('back')
+        }
+        req.flash('success_messages', data['message'])
+        res.redirect('/admin/categories')
+      })
+      .catch(err => next(err))
   },
   deleteCategory: (req, res, next) => {
     return Category.findByPk(req.params.id)

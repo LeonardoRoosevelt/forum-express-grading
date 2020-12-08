@@ -14,6 +14,13 @@ const categoryController = {
         return res.json(data)
       })
       .catch(err => next(err))
+  },
+  putCategory: (req, res) => {
+    categoryService
+      .putCategory(req, res, data => {
+        return res.json(data)
+      })
+      .catch(err => next(err))
   }
 }
 module.exports = categoryController
