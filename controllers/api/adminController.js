@@ -1,3 +1,6 @@
+const db = require('../../models')
+const Category = db.Category
+const Restaurant = db.Restaurant
 const adminService = require('../../services/adminService.js')
 
 const adminController = {
@@ -10,6 +13,15 @@ const adminController = {
     adminService
       .getRestaurant(req, res, data => {
         return res.json(data)
+      })
+      .catch(err => next(err))
+  },
+  deleteRestaurant: (req, res, next) => {
+    return Restaurant.findByPk(req.params.id)
+      .then(restaurant => {
+        restaurant.destroy().then(restaurant => {
+          res.json({ status: 'success', message: '' })
+        })
       })
       .catch(err => next(err))
   }
