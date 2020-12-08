@@ -39,7 +39,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
 })
 
-require('./routes')(app, passport)
+require('./routes')(app)
 //error handling
 app.use((req, res, next) => {
   const err = new Error('頁面不存在')
