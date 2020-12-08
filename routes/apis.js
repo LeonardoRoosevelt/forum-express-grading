@@ -12,4 +12,6 @@ router.get('/admin/restaurant/:id', adminController.getRestaurant)
 router.get('/admin/categories', categoryController.getCategories)
 router.post('/admin/restaurants', upload.single('image'), adminController.postRestaurant)
 router.delete('/admin/restaurants/:id', adminController.deleteRestaurant)
+router.get('/admin/restaurants/:id/edit', adminController.editRestaurant)
+router.put('/admin/restaurants/:id', adminController.putRestaurant)
 module.exports = router

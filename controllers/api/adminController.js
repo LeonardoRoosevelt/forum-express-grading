@@ -19,6 +19,16 @@ const adminController = {
       return res.json(data)
     })
   },
+  editRestaurant: (req, res) => {
+    adminService.editRestaurant(req, res, data => {
+      return res.json(data)
+    })
+  },
+  putRestaurant: (req, res) => {
+    adminService.putRestaurant(req, res, data => {
+      return res.json(data)
+    })
+  },
   deleteRestaurant: (req, res) => {
     adminService.deleteRestaurant(req, res, data => {
       return res.json(data)
